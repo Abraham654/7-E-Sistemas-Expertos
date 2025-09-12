@@ -71,12 +71,12 @@ class ChatbotEngine:
     def get_llm(self):
         """Obtiene el modelo de lenguaje a usar"""
         # Opción 1: Usar Ollama (si está instalado)
-        try:
-            return Ollama(model="llama2")
-        except:
+        #try:
+        #    return Ollama(model="llama2")
+        #except:
             # Opción 2: Usar un mock para pruebas
-            print("⚠️  Usando simulador de LLM para pruebas. Instala Ollama para respuestas reales.")
-            return self.get_mock_llm()
+        #    print("⚠️  Usando simulador de LLM para pruebas. Instala Ollama para respuestas reales.")
+        #    return self.get_mock_llm()
     
     def get_mock_llm(self):
         """Simulador de LLM para pruebas"""

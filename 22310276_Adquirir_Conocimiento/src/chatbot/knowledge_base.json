@@ -1,0 +1,14 @@
+{
+  "conversaciones": {
+    "hola": "¡Hola! Bienvenido al sistema de adquisición de conocimiento. ¿En qué puedo ayudarte hoy?",
+    "como estas": "¡Estoy funcionando perfectamente! Listo para aprender y ayudarte. ¿Qué te gustaría hablar?",
+    "de que te gustaria hablar": "Puedo hablar de cualquier tema que quieras enseñarme. Cuéntame, ¿sobre qué quieres conversar?",
+    "gracias": "¡De nada! Estoy aquí para aprender contigo. ¿Hay algo más que quieras enseñarme?",
+    "adios": "¡Hasta luego! Fue genial aprender contigo. Vuelve pronto para seguir ampliando mi conocimiento."
+  },
+  "temas_generales": {
+    "tecnologia": "La tecnología se refiere al conjunto de conocimientos técnicos y científicos que permiten crear bienes y servicios.",
+    "programacion": "La programación es el proceso de crear instrucciones para que una computadora ejecute tareas específicas.",
+    "inteligencia artificial": "La IA es la simulación de procesos de inteligencia humana por parte de máquinas, especialmente sistemas informáticos."
+  }
+}

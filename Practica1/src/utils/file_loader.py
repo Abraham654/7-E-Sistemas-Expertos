@@ -51,8 +51,19 @@ def load_pdfs_from_folder(folder_path: str) -> List[str]:
 
 # Prueba rápida para verificar que funciona
 if __name__ == "__main__":
-    # Probamos cargar PDFs de la carpeta data/raw
-    textos = load_pdfs_from_folder("../data/raw")
+    # Ruta CORRECTA usando la ubicación actual del archivo
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_path = os.path.join(current_dir, "../../data/raw")
+    
+    print(f"🔍 Buscando PDFs en: {data_path}")
+    
+    # Probamos cargar PDFs
+    textos = load_pdfs_from_folder(data_path)
+    
     if textos:
         print(f"\n📄 Primeros 200 caracteres del primer documento:")
         print(textos[0][:200] + "...")
+    else:
+        print("\n💡 Sugerencia: Agrega manuales PDF en la carpeta 'data/raw/'")
+        print("   Puedes crear un archivo de texto simple como prueba:")
+        print("   echo 'Manual de prueba...' > data/raw/manual.txt")

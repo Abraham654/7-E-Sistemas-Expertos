@@ -1,0 +1,15 @@
+MANUAL DE MECÁNICA BÁSICA
+
+CAPÍTULO 1: MOTOR
+- Cambio de aceite: cada 5000 km
+- Filtro de aire: cada 10000 km
+- Bujías: cada 30000 km
+
+CAPÍTULO 2: FRENOS  
+- Pastillas de freno: revisar cada 20000 km
+- Líquido de frenos: cambiar cada 2 años
+
+SÍNTOMAS COMUNES:
+- Ruido en motor: posible falta de aceite
+- Humo azul: quema de aceite
+- Freno pulsante: discos deformados

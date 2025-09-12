@@ -1,12 +1,18 @@
 import os
+import sys
 from typing import List
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
+
+# Agregar el directorio utils al path de Python
+sys.path.append(os.path.join(os.path.dirname(__file__)))
 
 # Cargar variables de entorno (API Key)
 load_dotenv()
+
+# Importar después de agregar al path
+from file_loader import load_pdfs_from_folder
 
 def create_knowledge_base(pdf_folder_path: str, persist_directory: str = "./chroma_db"):
     """
@@ -18,7 +24,6 @@ def create_knowledge_base(pdf_folder_path: str, persist_directory: str = "./chro
     """
     
     # 1. Cargar documentos
-    from .file_loader import load_pdfs_from_folder
     documents = load_pdfs_from_folder(pdf_folder_path)
     
     if not documents:
@@ -40,12 +45,12 @@ def create_knowledge_base(pdf_folder_path: str, persist_directory: str = "./chro
     
     print(f"✅ Total de chunks creados: {len(chunks)}")
     
-    # 3. Crear embeddings y base de datos vectorial
+    # 3. Crear embeddings LOCALES y base de datos vectorial
     try:
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002",
-            openai_api_key=os.getenv("OPENAI_API_KEY")
-        )
+        from langchain_community.embeddings import SentenceTransformerEmbeddings
+        embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        
+        print("🔄 Creando embeddings locales... (esto puede tomar unos minutos)")
         
         # Crear vector store
         vector_store = Chroma.from_texts(

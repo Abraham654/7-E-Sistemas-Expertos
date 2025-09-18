@@ -12,5 +12,8 @@
   "tecnologia": {
     "python": "Python es un lenguaje de programación interpretado de alto nivel y propósito general.",
     "inteligencia artificial": "La IA es la simulación de procesos de inteligencia humana por máquinas."
+  },
+  "caligrafia": {
+    "la": "articulo femenino singular"
   }
 }

@@ -1,0 +1,16 @@
+{
+  "conversaciones": {
+    "hola": "¡Hola! ¿En qué puedo ayudarte hoy?",
+    "adiós": "¡Hasta luego! Fue un placer ayudarte.",
+    "gracias": "¡De nada! Estoy aquí para ayudarte cuando lo necesites."
+  },
+  "temas_generales": {
+    "tiempo": "El tiempo es una magnitud física con la que medimos la duración de los eventos.",
+    "universo": "El universo es todo lo que existe: materia, energía, espacio y tiempo.",
+    "ola": "es el movimiento del mar en los extremos o bordes de tierra"
+  },
+  "tecnologia": {
+    "python": "Python es un lenguaje de programación interpretado de alto nivel y propósito general.",
+    "inteligencia artificial": "La IA es la simulación de procesos de inteligencia humana por máquinas."
+  }
+}

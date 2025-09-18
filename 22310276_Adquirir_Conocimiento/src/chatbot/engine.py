@@ -2,39 +2,29 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../utils'))
 
-from knowledge_acquisition import KnowledgeAcquisition
+from utils.knowledge_acquisition import KnowledgeAcquisition
 
 class KnowledgeChatbot:
     def __init__(self):
-        self.knowledge = KnowledgeAcquisition()
-        print("🤖 Sistema de Adquisición de Conocimiento Inicializado")
-        print(f"💾 Base de conocimiento: {sum(len(v) for v in self.knowledge.knowledge.values())} items")
+        self.knowledge_base = KnowledgeAcquisition()
     
     def start_chat(self):
-        """Inicia el chat interactivo de adquisición de conocimiento"""
-        print("\n" + "="*60)
-        print("           SISTEMA DE ADQUISICIÓN DE CONOCIMIENTO")
-        print("="*60)
+        """Inicia la conversación con el chatbot"""
+        print("🧠 Chatbot de Base de Conocimiento")
+        print("=" * 40)
         print("Escribe 'salir' para terminar la conversación\n")
-        print("¡Hola! Soy un sistema que aprende contigo. Puedes enseñarme")
-        print("cualquier tema preguntándome sobre ello.\n")
         
         while True:
-            try:
-                user_input = input("👤 Tú: ").strip()
-                
-                if user_input.lower() in ['salir', 'exit', 'quit', 'adios']:
-                    print("🤖 ¡Gracias por enseñarme! Hasta pronto. 📚")
-                    break
-                
-                response = self.get_response(user_input)
-                print(f"🤖 Sistema: {response}")
-                
-            except KeyboardInterrupt:
-                print("\n🤖 Conversación interrumpida. ¡Hasta pronto!")
+            user_input = input("👤 Tú: ").strip()
+            
+            if user_input.lower() in ['salir', 'exit', 'quit', 'adiós']:
+                print("🤖: ¡Hasta luego! Fue un placer ayudarte.")
                 break
-            except Exception as e:
-                print(f"🤖 Error: {e}")
+            
+            if user_input:
+                # AQUÍ DEBE USAR search_knowledge, NO find_answer
+                response = self.knowledge_base.search_knowledge(user_input)
+                print(f"🤖: {response}")
     
     def get_response(self, question: str) -> str:
         """Obtiene respuesta o adquiere nuevo conocimiento"""

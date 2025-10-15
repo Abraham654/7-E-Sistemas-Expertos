@@ -24,7 +24,15 @@
                 },
                 "no": "No"
             },
-            "no": "Si"
+            "no": {
+                "pregunta": "¿Es Japones?",
+                "si": "Nissan Tsuru",
+                "no": {
+                    "pregunta": "¿Es Aleman?",
+                    "si": "Volkswagen Jetta",
+                    "no": "Si"
+                }
+            }
         },
         "no": {
             "pregunta": "",
@@ -33,7 +41,11 @@
                 "si": {
                     "pregunta": "¿Es Europeo?",
                     "si": "BMW M3 E30",
-                    "no": "Carro Desconocido - Fin del camino"
+                    "no": {
+                        "pregunta": "¿Es Estadounidense?",
+                        "si": "Chevrolet Bel Air",
+                        "no": "Carro Desconocido - Fin del camino"
+                    }
                 },
                 "no": "Carro Desconocido - Fin del camino"
             },
@@ -45,8 +57,13 @@
         }
     },
     "carros": [
+        "Si",
+        "No",
         "Chevy Pop",
         "BMW M3 E30",
-        "Ford Fiesta"
+        "Ford Fiesta",
+        "Nissan Tsuru",
+        "Volkswagen Jetta",
+        "Chevrolet Bel Air"
     ]
 }

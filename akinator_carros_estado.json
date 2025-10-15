@@ -51,7 +51,11 @@
             },
             "no": {
                 "pregunta": "¿Es Estado Unidense?",
-                "si": "Carro Desconocido - Fin del camino",
+                "si": {
+                    "pregunta": "¿Es un clasico Muscle Car?",
+                    "si": "Dodge Charger RT 70",
+                    "no": "un carro genérico"
+                },
                 "no": "Chevy Pop"
             }
         }
@@ -62,6 +66,7 @@
         "Ford Fiesta",
         "Nissan Tsuru",
         "Volkswagen Jetta",
-        "Chevrolet Bel Air"
+        "Chevrolet Bel Air",
+        "Dodge Charger RT 70"
     ]
 }

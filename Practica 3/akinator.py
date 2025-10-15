@@ -4,28 +4,20 @@ import os # <-- ¡Añade esta línea!
 
 # ... (resto del código)
 
-def inicializar_arbol_desde_csv(file_path):
-    """
-    Inicializa el árbol de decisiones y la lista de carros desde el CSV.
-    """
-    # **INICIO DE MODIFICACIÓN**
-    # Obtener el directorio actual del script (donde reside akinator.py)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Construir la ruta completa al archivo CSV
-    ruta_completa_csv = os.path.join(script_dir, file_path)
-    # **FIN DE MODIFICACIÓN**
-
+def cargar_estado_juego(filename):
+    """Carga el árbol de decisiones y la lista de carros desde un archivo JSON."""
     try:
-        # Usar la ruta completa construida
-        df = pd.read_csv(ruta_completa_csv, header=None, encoding='utf-8', keep_default_na=False)
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return data.get('arbol', {}), data.get('carros', [])
     except FileNotFoundError:
-        print(f"Error: No se encontró el archivo '{ruta_completa_csv}'") # Muestra la ruta real
+        # ESTE BLOQUE DEBE ESTAR IDENTADO
+        print("No se encontró un estado de juego previo. Se inicializará con los datos del CSV.")
         return None, None
-    except Exception as e:
     except json.JSONDecodeError:
+        # ESTE BLOQUE DEBE ESTAR IDENTADO
         print("Error al decodificar el archivo de estado. Se inicializará con los datos del CSV.")
         return None, None
-
 def guardar_estado_juego(arbol, carros, filename):
     """Guarda el árbol de decisiones y la lista de carros en un archivo JSON."""
     data = {'arbol': arbol, 'carros': carros}

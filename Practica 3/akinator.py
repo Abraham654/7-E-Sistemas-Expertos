@@ -1,11 +1,10 @@
 import pandas as pd
 import json
 import os 
-# Asegúrate de haber instalado 'openpyxl' para que pd.read_excel funcione
+# Asegúrate de haber instalado 'openpyxl'
 
 # 1. VARIABLES GLOBALES
 ESTADO_JUEGO_FILE = 'akinator_carros_estado.json' 
-# *** CORRECCIÓN CRÍTICA: Nombre del archivo basado en ls -l ***
 CSV_FILE_PATH = 'Akinnator carros.xlsx' 
 
 # 2. FUNCIONES PARA GESTIONAR EL ESTADO DEL JUEGO (APRENDIZAJE)
@@ -17,10 +16,10 @@ def cargar_estado_juego(filename):
             data = json.load(f)
             return data.get('arbol', {}), data.get('carros', [])
     except FileNotFoundError:
-        print("No se encontró un estado de juego previo. Se inicializará con los datos del CSV.")
+        print("No se encontró un estado de juego previo. Se inicializará con los datos del Excel.")
         return None, None
     except json.JSONDecodeError:
-        print("Error al decodificar el archivo de estado. Se inicializará con los datos del CSV.")
+        print("Error al decodificar el archivo de estado. Se inicializará con los datos del Excel.")
         return None, None
 
 def guardar_estado_juego(arbol, carros, filename):
@@ -34,48 +33,31 @@ def guardar_estado_juego(arbol, carros, filename):
 
 def inicializar_arbol_desde_archivo(file_path):
     """
-    Inicializa el árbol de decisiones y la lista de carros desde el archivo XLSX.
+    Inicializa el árbol de decisiones y la lista de carros desde el archivo XLSX,
+    corrigiendo los índices de fila para leer solo las preguntas.
     """
     script_dir = os.path.dirname(os.path.abspath(__file__))
     ruta_completa_archivo = os.path.join(script_dir, file_path)
 
-    print(f"Buscando archivo en: {ruta_completa_archivo}")
-
     try:
-        # *** CORRECCIÓN CRÍTICA: USAR read_excel ***
-        # Se asume que la hoja de datos se llama 'Hoja1', si tiene otro nombre, cámbialo aquí.
+        # Se asume que la hoja de datos se llama 'Hoja1' y el archivo tiene suficientes filas
         df = pd.read_excel(ruta_completa_archivo, header=None, sheet_name='Hoja1', keep_default_na=False)
-    except FileNotFoundError:
-        print(f"Error: No se encontró el archivo '{file_path}' en la ubicación esperada.")
-        return None, None
-    except ImportError:
-        print("Error de dependencia: La biblioteca 'openpyxl' es necesaria para leer archivos .xlsx. Instálala con 'pip install openpyxl'")
-        return None, None
     except Exception as e:
-        print(f"Error al leer el archivo (posiblemente un problema con la hoja de cálculo): {e}")
+        print(f"Error al leer el archivo: {e}")
         return None, None
 
     arbol = {}
     carros = []
+
+    # Se usa la Fila 10 (índice 9) del Excel para buscar los carros, asumiendo 5 niveles de preguntas.
+    CAR_ROW_INDEX = 10 
     
-    def get_carro_at_path(path_indices):
-        """Busca el carro en la fila 5 (índice 5) basada en la lógica del Excel."""
-        
-        if path_indices == [0, 0, 0, 0]: 
-            carro = df.iloc[5, 1] # Ford Fiesta USA I4 TD
-        elif path_indices == [0, 0, 0, 1]: 
-            carro = df.iloc[5, 3] # Ford Focus RS USA Ecoboost I4 TA
-        elif path_indices == [0, 0, 1]: 
-            carro = df.iloc[5, 5] # Chevrolet Chevy Pop USA I4 TD
-        elif path_indices == [0, 1]: 
-            carro = df.iloc[5, 9] # Nissan Fairlady Z 240Z Japones L24 I6 TT
-        elif path_indices == [1, 0]: 
-            carro = df.iloc[5, 7] # Shelby AC Cobra USA 427 V8 TT
-        elif path_indices == [1, 1]: 
-            carro = df.iloc[5, 3] # Mazda Miata Mx-5 Japones Skyactiv G I4 TT (Nota: Mismo índice por simplificación)
-        elif path_indices == [1, 2]: 
-            carro = df.iloc[5, 11] # Bugatti Chiron SS Frances W16 TA
-        else:
+    def get_carro_at_path(col_index):
+        """Busca el carro en la fila de carros (índice 10) en la columna especificada."""
+        try:
+            # Encuentra el carro en la fila de carros, a partir de la columna del índice dado.
+            carro = df.iloc[CAR_ROW_INDEX, col_index] 
+        except IndexError:
             return "Carro Desconocido - Fin del camino"
 
         if isinstance(carro, str) and carro.strip():
@@ -84,29 +66,41 @@ def inicializar_arbol_desde_archivo(file_path):
         return "Carro Desconocido - Fin del camino"
 
 
+    # Estructura del árbol inicial con índices de fila corregidos para las preguntas:
+    # Nivel 1 Q: Fila 0
+    # Nivel 2 Q: Fila 2
+    # Nivel 3 Q: Fila 4 <--- CORRECCIÓN PRINCIPAL (Antes estaba en Fila 3)
+
+    try:
+        # Nivel 1 (Fila 0)
+        pregunta_1 = df.iloc[0, 1] 
+
+        # Nivel 2 (Fila 2)
+        pregunta_2_si = df.iloc[2, 1]     # ¿Es Estado Unidense?
+        pregunta_2_no = df.iloc[2, 9]     # ¿Es Traccion Trasera? (Asumiendo que este es el inicio de la rama NO)
+
+        # Nivel 3 (Fila 4)
+        pregunta_3_sisi = df.iloc[4, 1]   # ¿Es de la marca Ford? (Si -> Si -> Q)
+
+    except IndexError:
+        print("Error: El archivo Excel no tiene suficientes filas o columnas para el mapeo inicial.")
+        return None, None
+
     arbol = {
-        'pregunta': df.iloc[0, 1],
+        'pregunta': pregunta_1, 
         'si': {
-            'pregunta': df.iloc[2, 1],
+            'pregunta': pregunta_2_si,
             'si': {
-                'pregunta': df.iloc[3, 1],
-                'si': {
-                    'pregunta': df.iloc[4, 1],
-                    'si': get_carro_at_path([0,0,0,0]),
-                    'no': get_carro_at_path([0,0,0,1])
-                },
-                'no': get_carro_at_path([0,0,1])
+                'pregunta': pregunta_3_sisi, # Nivel 3: ¿Es de la marca Ford?
+                'si': get_carro_at_path(2),    # Carro en columna 2 (Ford Fiesta USA I4 TD)
+                'no': get_carro_at_path(4)     # Carro en columna 4 (Ford Focus RS)
             },
-            'no': get_carro_at_path([0,1])
+            'no': get_carro_at_path(10) # Carro en columna 10 (Nissan 240Z, etc.)
         },
         'no': {
-            'pregunta': df.iloc[2, 9],
-            'si': {
-                'pregunta': df.iloc[3, 9],
-                'si': get_carro_at_path([1,0]),
-                'no': get_carro_at_path([1,1])
-            },
-            'no': get_carro_at_path([1,2])
+            'pregunta': pregunta_2_no if pregunta_2_no.strip() else '¿Es un auto deportivo?', # CORRECCIÓN: Si la celda es vacía, usa una pregunta por defecto.
+            'si': get_carro_at_path(8),  # Shelby AC Cobra
+            'no': get_carro_at_path(12)  # Bugatti Chiron SS
         }
     }
     
@@ -155,7 +149,13 @@ def jugar(arbol_actual, carros_disponibles):
             
     else:
         # Es un nodo de pregunta (rama del árbol)
-        pregunta = arbol_actual['pregunta']
+        pregunta = arbol_actual.get('pregunta', 'Error: Pregunta no definida')
+        
+        # Manejo de preguntas vacías (como la que te salía ****)
+        if not pregunta or pregunta.strip() in ['Si', 'No', '']:
+             # Si por alguna razón lee una celda vacía o de respuesta, usa una pregunta por defecto
+             pregunta = '¿Es un vehículo de más de 10 años?'
+        
         respuesta = input(f"\nPregunta: **{pregunta}** (s/n): ").lower()
         
         if respuesta == 's':
@@ -183,7 +183,6 @@ def main():
     
     if arbol is None:
         print(f"Inicializando el árbol de decisiones a partir de '{CSV_FILE_PATH}'...")
-        # Llama a la función actualizada que lee XLSX
         arbol, carros = inicializar_arbol_desde_archivo(CSV_FILE_PATH)
 
     if arbol is None or not arbol:

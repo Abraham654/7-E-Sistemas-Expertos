@@ -7,7 +7,11 @@
                 "pregunta": "Si",
                 "si": {
                     "pregunta": "¿Es de la marca Ford?",
-                    "si": "Si",
+                    "si": {
+                        "pregunta": "¿Es un sedan o hatchback pequeño?",
+                        "si": "Ford Fiesta",
+                        "no": "Si"
+                    },
                     "no": {
                         "pregunta": "¿Es de la Marca Chevrolet?",
                         "si": {
@@ -44,6 +48,7 @@
         "Si",
         "No",
         "Chevy Pop",
-        "BMW M3 E30"
+        "BMW M3 E30",
+        "Ford Fiesta"
     ]
 }

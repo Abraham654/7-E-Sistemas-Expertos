@@ -1,0 +1,44 @@
+{
+    "arbol": {
+        "pregunta": "¿Es Traccion Delantera?",
+        "si": {
+            "pregunta": "¿Es Estado Unidense?",
+            "si": {
+                "pregunta": "Si",
+                "si": {
+                    "pregunta": "¿Es de la marca Ford?",
+                    "si": "Si",
+                    "no": {
+                        "pregunta": "¿Es de la Marca Chevrolet?",
+                        "si": {
+                            "pregunta": "¿Es de 4 Cilindros en linea?",
+                            "si": "Chevy Pop",
+                            "no": "Carro Desconocido - Fin del camino"
+                        },
+                        "no": "Chevy Pop"
+                    }
+                },
+                "no": "No"
+            },
+            "no": "Si"
+        },
+        "no": {
+            "pregunta": "",
+            "si": {
+                "pregunta": "No",
+                "si": "Carro Desconocido - Fin del camino",
+                "no": "Carro Desconocido - Fin del camino"
+            },
+            "no": {
+                "pregunta": "¿Es Estado Unidense?",
+                "si": "Carro Desconocido - Fin del camino",
+                "no": "Chevy Pop"
+            }
+        }
+    },
+    "carros": [
+        "Si",
+        "No",
+        "Chevy Pop"
+    ]
+}

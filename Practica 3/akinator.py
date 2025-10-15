@@ -1,11 +1,13 @@
 import pandas as pd
 import json
-import os # <-- ¡Añade esta línea!
+import os # ¡Asegúrate que esta línea esté presente para la corrección de ruta!
 
-# ... (resto del código)
+# Variable global: ESTA LÍNEA SOLUCIONA EL 'NameError'
+ESTADO_JUEGO_FILE = 'akinator_carros_estado.json' 
 
 def cargar_estado_juego(filename):
     """Carga el árbol de decisiones y la lista de carros desde un archivo JSON."""
+# ... (El resto del código)
     try:
         with open(filename, 'r', encoding='utf-8') as f:
             data = json.load(f)

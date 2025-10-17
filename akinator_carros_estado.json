@@ -26,7 +26,11 @@
             },
             "no": {
                 "pregunta": "¿Es Japones?",
-                "si": "Nissan Tsuru",
+                "si": {
+                    "pregunta": "¿Usa motores Skyactiv G?",
+                    "si": "Mazda 3",
+                    "no": "Nissan Tsuru"
+                },
                 "no": {
                     "pregunta": "¿Es Aleman?",
                     "si": "Volkswagen Jetta",
@@ -67,6 +71,7 @@
         "Nissan Tsuru",
         "Volkswagen Jetta",
         "Chevrolet Bel Air",
-        "Dodge Charger RT 70"
+        "Dodge Charger RT 70",
+        "Mazda 3"
     ]
 }

@@ -1,26 +1,100 @@
-import pandas as pd
 import json
-import os 
-# Asegúrate de haber instalado 'openpyxl'
+import os
 
 # 1. VARIABLES GLOBALES
 ESTADO_JUEGO_FILE = 'akinator_carros_estado.json' 
-CSV_FILE_PATH = 'Akinnator carros.xlsx' 
 
-# 2. FUNCIONES PARA GESTIONAR EL ESTADO DEL JUEGO (APRENDIZAJE)
+# 2. BASE DE DATOS INICIAL (La estructura de preguntas se define aquí)
+# El valor de una 'hoja' del árbol debe ser un vehículo (str) o el marcador de fin de rama.
+MARCADOR_FIN_DE_RAMA = "Carro Desconocido - Fin del camino"
+
+# Estructura del árbol inicial de 5 niveles, completada para cubrir varias ramas.
+# Esta estructura reemplaza la necesidad de leer las preguntas del Excel.
+ARBOL_INICIAL_ESTRUCTURADO = {
+    'pregunta': '¿El carro tiene Tracción Delantera (TD)?',
+    'si': { # Rama TD (SI)
+        'pregunta': '¿Es un carro de origen Estado Unidense (USA)?',
+        'si': { # Rama TD -> USA (SI)
+            'pregunta': '¿Es de la marca Ford?',
+            'si': { # Rama TD -> USA -> Ford (SI)
+                'pregunta': '¿El motor es de 4 Cilindros en línea (I4)?',
+                'si': 'Ford Fiesta (TD, USA, I4)',
+                'no': 'Ford Focus RS (TD, USA, TA, 4x4)' # Asumo que NO I4 en esta rama es otro Ford conocido
+            },
+            'no': { # Rama TD -> USA -> NO Ford (Chevrolet, Dodge)
+                'pregunta': '¿Es de la marca Chevrolet?',
+                'si': 'Chevrolet Chevy Pop (TD, USA, I4)',
+                'no': MARCADOR_FIN_DE_RAMA # Otros USA TD
+            }
+        },
+        'no': { # Rama TD -> NO USA (Japón, Alemania, etc.)
+            'pregunta': '¿Es de origen Japonés?',
+            'si': 'Honda Civic (TD, JAP, I4)',
+            'no': 'Volkswagen Golf (TD, ALE, I4)' # Asumo que NO Japonés es Europeo conocido
+        }
+    },
+    'no': { # Rama NO TD (Tracción Trasera, Total, o Central) (NO)
+        'pregunta': '¿El carro es predominantemente Tracción Trasera (TT)?',
+        'si': { # Rama TT (SI)
+            'pregunta': '¿Es un muscle car o deportivo clásico USA?',
+            'si': 'Shelby AC Cobra (TT, USA, V8)',
+            'no': 'Mazda MX-5 Miata (TT, JAP, I4)'
+        },
+        'no': { # Rama NO TT (Total/Central)
+            'pregunta': '¿Tiene más de 8 cilindros?',
+            'si': 'Bugatti Chiron SS (TA, FR, W16)',
+            'no': 'Audi R8 (TA, ALE, V10)'
+        }
+    }
+}
+
+# La lista de vehículos se extrae automáticamente del ARBOL_INICIAL_ESTRUCTURADO.
+# Si quieres añadir más vehículos sin modificar el árbol, añádelos aquí.
+VEHICULOS_INICIALES_JSON = [
+    'Ford Fiesta (TD, USA, I4)',
+    'Ford Focus RS (TD, USA, TA, 4x4)',
+    'Chevrolet Chevy Pop (TD, USA, I4)',
+    'Honda Civic (TD, JAP, I4)',
+    'Volkswagen Golf (TD, ALE, I4)',
+    'Shelby AC Cobra (TT, USA, V8)',
+    'Mazda MX-5 Miata (TT, JAP, I4)',
+    'Bugatti Chiron SS (TA, FR, W16)',
+    'Audi R8 (TA, ALE, V10)',
+    # Puedes agregar más vehículos aquí para la base de datos inicial:
+    # 'Nissan 240Z (TT, JAP, I6)',
+]
+
+# Función para obtener la lista inicial de vehículos a partir del árbol
+def obtener_lista_inicial(arbol, vehiculos_list):
+    """Recorre el árbol para obtener la lista de vehículos iniciales."""
+    if isinstance(arbol, str):
+        if arbol != MARCADOR_FIN_DE_RAMA and arbol not in vehiculos_list:
+            vehiculos_list.append(arbol)
+        return
+    
+    obtener_lista_inicial(arbol['si'], vehiculos_list)
+    obtener_lista_inicial(arbol['no'], vehiculos_list)
+
+
+# 3. GESTIÓN DEL ESTADO DEL JUEGO (Aprendizaje)
 
 def cargar_estado_juego(filename):
     """Carga el árbol de decisiones y la lista de carros desde un archivo JSON."""
     try:
         with open(filename, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data.get('arbol', {}), data.get('carros', [])
+            return data.get('arbol', ARBOL_INICIAL_ESTRUCTURADO), data.get('carros', VEHICULOS_INICIALES_JSON)
     except FileNotFoundError:
-        print("No se encontró un estado de juego previo. Se inicializará con los datos del Excel.")
-        return None, None
+        print("No se encontró un estado de juego previo. Se inicializará con la estructura interna.")
+        
+        # Inicializar la lista de vehículos a partir del árbol y la lista base
+        carros_iniciales = list(set(VEHICULOS_INICIALES_JSON))
+        obtener_lista_inicial(ARBOL_INICIAL_ESTRUCTURADO, carros_iniciales)
+        
+        return ARBOL_INICIAL_ESTRUCTURADO, carros_iniciales
     except json.JSONDecodeError:
-        print("Error al decodificar el archivo de estado. Se inicializará con los datos del Excel.")
-        return None, None
+        print("Error al decodificar el archivo de estado. Se inicializará con la estructura interna.")
+        return ARBOL_INICIAL_ESTRUCTURADO, VEHICULOS_INICIALES_JSON
 
 def guardar_estado_juego(arbol, carros, filename):
     """Guarda el árbol de decisiones y la lista de carros en un archivo JSON."""
@@ -29,93 +103,21 @@ def guardar_estado_juego(arbol, carros, filename):
         json.dump(data, f, indent=4, ensure_ascii=False)
     print("\n¡Estado del juego guardado! El Akinator ha aprendido algo nuevo. 🧠")
 
-# 3. FUNCIÓN PARA INICIALIZAR EL ÁRBOL DESDE EL ARCHIVO XLSX
-
-def inicializar_arbol_desde_archivo(file_path):
-    """
-    Inicializa el árbol de decisiones y la lista de carros desde el archivo XLSX.
-    """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    ruta_completa_archivo = os.path.join(script_dir, file_path)
-
-    try:
-        df = pd.read_excel(ruta_completa_archivo, header=None, sheet_name='Hoja1', keep_default_na=False)
-    except Exception as e:
-        print(f"Error al leer el archivo: {e}")
-        return None, None
-
-    arbol = {}
-    carros = []
-
-    # Fila donde inician los carros
-    CAR_ROW_INDEX = 10 
-    
-    def get_carro_at_path(col_index):
-        """Busca el carro en la fila de carros (índice 10) en la columna especificada."""
-        try:
-            carro = df.iloc[CAR_ROW_INDEX, col_index] 
-        except IndexError:
-            return "Carro Desconocido - Fin del camino"
-
-        if isinstance(carro, str) and carro.strip():
-            carros.append(carro.strip())
-            return carro.strip()
-        return "Carro Desconocido - Fin del camino"
-
-
-    # Estructura del árbol inicial (usando filas 0, 2, 4 para las preguntas)
-
-    try:
-        pregunta_1 = df.iloc[0, 1] 
-        pregunta_2_si = df.iloc[2, 1]     
-        pregunta_2_no = df.iloc[2, 9]     
-        pregunta_3_sisi = df.iloc[4, 1]   
-
-    except IndexError:
-        print("Error: El archivo Excel no tiene suficientes filas o columnas para el mapeo inicial.")
-        return None, None
-
-    arbol = {
-        'pregunta': pregunta_1, 
-        'si': {
-            'pregunta': pregunta_2_si,
-            'si': {
-                'pregunta': pregunta_3_sisi, 
-                'si': get_carro_at_path(2),    
-                'no': get_carro_at_path(4)     
-            },
-            'no': get_carro_at_path(10) 
-        },
-        'no': {
-            'pregunta': pregunta_2_no if pregunta_2_no.strip() else '¿Es un auto deportivo?', 
-            'si': get_carro_at_path(8),  
-            'no': get_carro_at_path(12)  
-        }
-    }
-    
-    carros_final = list(set([c for c in carros if c.strip() and "Desconocido" not in c]))
-
-    return arbol, carros_final
 
 # 4. FUNCIÓN CENTRAL DEL JUEGO (RECURSIVA)
 
 def jugar(arbol_actual, carros_disponibles):
     """Inicia el juego Akinator recorriendo el árbol."""
     
-    # ----------------------------------------------------
-    # Caso 1: Se ha llegado a una HOJA (un carro o el error 'Desconocido')
-    # ----------------------------------------------------
     if isinstance(arbol_actual, str):
         carro_adivinado = arbol_actual
         
-        # *** CORRECCIÓN PRINCIPAL: Evitar preguntar si adivinó el mensaje de error ***
-        if "Carro Desconocido" in carro_adivinado:
+        if carro_adivinado == MARCADOR_FIN_DE_RAMA:
             print("\nEl Akinator se ha quedado sin opciones en esta rama.")
             respuesta = 'n' # Forzar el aprendizaje
         else:
             print(f"\n¡Creo que es el **{carro_adivinado}**!")
             respuesta = input("¿Adiviné? (s/n): ").lower()
-        # ----------------------------------------------------
 
         if respuesta == 's':
             print("¡Soy el mejor Akinator de carros! 🥳")
@@ -125,8 +127,8 @@ def jugar(arbol_actual, carros_disponibles):
             # Fase de aprendizaje
             nuevo_carro = input("¿Qué carro era?: ").strip()
             
-            # El carro a diferenciar es el que se adivinó (mal)
-            carro_a_diferenciar = "un carro genérico" if "Desconocido" in carro_adivinado else carro_adivinado
+            # Si el Akinator falló en un nodo vacío, el carro a diferenciar es el MARCADOR_FIN_DE_RAMA
+            carro_a_diferenciar = MARCADOR_FIN_DE_RAMA if carro_adivinado == MARCADOR_FIN_DE_RAMA else carro_adivinado
             
             nueva_pregunta = input(f"Dame una pregunta S/N que diferencie '{nuevo_carro}' de '{carro_a_diferenciar}': ").strip()
             
@@ -150,20 +152,9 @@ def jugar(arbol_actual, carros_disponibles):
             
             return nuevo_nodo, False 
             
-    # ----------------------------------------------------
-    # Caso 2: Es un NODO de pregunta
-    # ----------------------------------------------------
     else:
         pregunta = arbol_actual.get('pregunta', 'Error: Pregunta no definida')
         
-        # *** CORRECCIÓN PRINCIPAL: Evitar la repetición de la pregunta de control ***
-        # El problema de la repetición ocurre porque la lógica de 'pregunta no definida'
-        # reescribe la variable 'pregunta', pero no cambia el nodo del árbol,
-        # causando que el mismo error se repita en la siguiente iteración.
-        
-        # Lo mejor es confiar en que la pregunta del nodo es correcta
-        # y solo corregir la respuesta si no es 's' o 'n'.
-
         respuesta = input(f"\nPregunta: **{pregunta}** (s/n): ").lower()
         
         if respuesta == 's':
@@ -174,11 +165,9 @@ def jugar(arbol_actual, carros_disponibles):
             print("Respuesta no válida. Intentemos con 'n' por defecto.")
             clave = 'no'
         
-        # La recursión es lo que debe manejar la actualización del árbol
         resultado, adivinado = jugar(arbol_actual[clave], carros_disponibles)
         
         if not adivinado and isinstance(arbol_actual[clave], str):
-            # Si falló la adivinanza y el hijo era una hoja, reemplaza la hoja
             arbol_actual[clave] = resultado
             return arbol_actual, False
         
@@ -189,28 +178,27 @@ def jugar(arbol_actual, carros_disponibles):
 def main():
     """Función principal del Akinator."""
     
+    # El árbol y los carros se inicializan a partir del JSON o la estructura interna
     arbol, carros = cargar_estado_juego(ESTADO_JUEGO_FILE)
-    
-    if arbol is None:
-        print(f"Inicializando el árbol de decisiones a partir de '{CSV_FILE_PATH}'...")
-        arbol, carros = inicializar_arbol_desde_archivo(CSV_FILE_PATH)
 
-    if arbol is None or not arbol:
-        print("No se pudo inicializar el juego. Saliendo.")
+    if not arbol:
+        print("Error: No se pudo cargar ni inicializar el árbol de decisiones. Saliendo.")
         return
 
     while True:
         print("\n" + "="*50)
         print("🤖 **¡Bienvenido al Akinator de Carros!** 🏁")
-        print("Piensa en un carro. Responde con 's' (sí) o 'n' (no).")
+        print(f"Piensa en un carro ({len(carros)} conocidos). Responde con 's' (sí) o 'n' (no).")
         print("="*50)
         
+        # Clonación profunda para evitar modificar el árbol actual antes de guardar
         arbol_copia = json.loads(json.dumps(arbol))
         carros_copia = list(carros)
         
         arbol_final, adivinado = jugar(arbol_copia, carros_copia)
 
         if not adivinado:
+            # Si hubo aprendizaje, actualiza el árbol global y la lista de carros
             arbol = arbol_final
             carros = carros_copia
             guardar_estado_juego(arbol, carros, ESTADO_JUEGO_FILE)

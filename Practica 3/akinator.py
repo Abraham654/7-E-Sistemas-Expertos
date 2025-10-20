@@ -1,16 +1,12 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Akinator de carros (versión CLI)
-- NO lee Excel en tiempo de ejecución.
+Akinator de carros (versión CLI con opción de volver a jugar)
+- No lee Excel en tiempo de ejecución.
 - Base de datos embebida con 32 autos.
-- Aprende nuevas reglas/autos y las guarda en learned_db.json.
-- Inspirado en la estructura del Excel que proporcionaste.
+- Aprende nuevos autos/preguntas.
 """
 
 import json
 import os
-import sys
 
 CARS = [
     "Toyota Supra Japones 2JZ-GTE I6 TT",
@@ -47,7 +43,6 @@ CARS = [
     "Nissan Fairlady Z 240Z Japones L24 I6 TT"
 ]
 
-# Preguntas extraídas de la estructura del Excel (ordenado y limpiado)
 QUESTIONS = [
     "¿Es Traccion Delantera?",
     "¿Es Estado Unidense?",
@@ -73,7 +68,7 @@ QUESTIONS = [
 
 DB_FILE = "learned_db.json"
 
-# ---------------- utility ----------------
+# ---------------- utilidad ----------------
 def load_db():
     if os.path.exists(DB_FILE):
         try:
@@ -98,17 +93,12 @@ def ask(question):
             return "no se"
         print("Responde 'si', 'no' o 'no sé' por favor.")
 
-# ---------------- filtering heuristics ----------------
+# ---------------- filtrado heurístico ----------------
 def filter_cars(answers):
-    """
-    Filtra los autos usando reglas heurísticas (substrings) basadas en las respuestas.
-    Es intencionalmente simple: busca palabras clave en las descripciones embebidas.
-    """
     candidates = CARS.copy()
 
-    # País / origen
     if answers.get("¿Es Estado Unidense?") == "si":
-        candidates = [c for c in candidates if "USA" in c or "Chevrolet" in c or "Ford" in c or "Shelby" in c or "Corvette" in c or "Camaro" in c or "Impala" in c or "Dodge" in c]
+        candidates = [c for c in candidates if any(k in c for k in ("USA","Chevrolet","Ford","Shelby","Corvette","Camaro","Impala","Dodge"))]
 
     if answers.get("¿Es Japones?") == "si" or answers.get("¿Es JDM?") == "si":
         candidates = [c for c in candidates if any(k in c for k in ("Japones","Nissan","Toyota","Mazda","Subaru","Mitsubishi","Acura"))]
@@ -116,48 +106,40 @@ def filter_cars(answers):
     if answers.get("¿Es Aleman?") == "si":
         candidates = [c for c in candidates if any(k in c for k in ("Aleman","BMW","Volkswagen","Porsche"))]
 
-    # Marca
     if answers.get("¿Es de la marca Ford?") == "si" or answers.get("¿Es de Ford?") == "si":
-        candidates = [c for c in candidates if "Ford" in c or "Mustang" in c or "F-150" in c]
+        candidates = [c for c in candidates if any(k in c for k in ("Ford","Mustang","F-150"))]
 
     if answers.get("¿Es de la Marca Chevrolet?") == "si" or answers.get("¿Es Chevrolet?") == "si":
-        candidates = [c for c in candidates if "Chevrolet" in c or "Camaro" in c or "Corvette" in c or "Chevy" in c or "Impala" in c]
+        candidates = [c for c in candidates if any(k in c for k in ("Chevrolet","Camaro","Corvette","Chevy","Impala"))]
 
     if answers.get("¿Es de Volkswagen?") == "si":
         candidates = [c for c in candidates if "Volkswagen" in c]
 
     if answers.get("¿Es de la Marca Mazda?") == "si":
-        candidates = [c for c in candidates if "Mazda" in c or "Miata" in c or "Mazda 3" in c]
+        candidates = [c for c in candidates if "Mazda" in c or "Miata" in c]
 
-    # Tracción
     if answers.get("¿Es Traccion Delantera?") == "si":
-        # heurística: Jetta, Fiesta, Astra, Corolla y modelos compactos
         candidates = [c for c in candidates if any(k in c for k in ("Jetta","Fiesta","Astra","Corolla","Mazda 3","Focus"))]
 
     if answers.get("¿Es Traccion Trasera?") == "si":
-        candidates = [c for c in candidates if any(k in c for k in ("Mustang","Corvette","Supra","Skyline","Fairlady","Cobra","Shelby","Chevrolet Camaro","240Z"))]
+        candidates = [c for c in candidates if any(k in c for k in ("Mustang","Corvette","Supra","Skyline","Fairlady","Cobra","Shelby"))]
 
-    # Motor / cilindrada
     if answers.get("¿Es de 4 Cilindros?") == "si":
-        candidates = [c for c in candidates if "I4" in c or "Boxer4" in c or "4 Cil" in c or ("I" in c and "4" in c)]
+        candidates = [c for c in candidates if "I4" in c or "Boxer4" in c]
+
     if answers.get("¿Su motor es en linea?") == "si":
         candidates = [c for c in candidates if "I6" in c or "I4" in c or "L24" in c]
 
-    # Rally / deportivos
     if answers.get("¿Es Famoso por los Rallys?") == "si":
         candidates = [c for c in candidates if any(k in c for k in ("Impreza","Lancer","Evolution","Subaru","Mitsubishi"))]
 
-    # Regla extra: si existen reglas aprendidas, aplicarlas
     db = load_db()
     for rule in db.get("rules", []):
         q = rule.get("question")
         ans = rule.get("answer")
         car = rule.get("car")
-        if not q:
-            continue
-        # si el usuario contestó esa pregunta y coincide con la regla, reducimos candidatos
         if answers.get(q) == ans:
-            candidates = [c for c in candidates if car in c or car.lower() in c.lower()]
+            candidates = [c for c in candidates if car.lower() in c.lower()]
 
     return candidates
 
@@ -180,60 +162,68 @@ def guess(candidates):
         pass
     return None
 
-# ------------------ aprendizaje ------------------
+# ---------------- aprendizaje ----------------
 def learn(db, asked_answers):
-    print("\nNo lo adiviné. Enséñame para la próxima (rápido y sin drama).")
+    print("\nNo lo adiviné. Enséñame para la próxima.")
     real = input("¿Qué auto tenías en mente? Escribe el nombre exacto: ").strip()
     if not real:
         print("Nombre vacío — no guardo nada.")
         return db
-    q = input("Dame una pregunta de sí/no que distinga ese auto de los candidatos (ej: '¿Tiene V12?'): ").strip()
+    q = input("Dame una pregunta de sí/no que distinga ese auto de los demás: ").strip()
     if not q:
-        # sólo guardamos el auto en la lista
         db.setdefault("autos_extra", []).append(real)
         save_db(db)
-        print("Guardé el auto en la DB (sin regla).")
+        print("Guardé el auto en la base de datos (sin pregunta).")
         return db
     ans = ""
     while ans not in ("si","no"):
-        ans = input(f"Para '{real}', ¿la respuesta a \"{q}\" es si o no?: ").strip().lower()
-    # guardar regla
+        ans = input(f"Para '{real}', ¿la respuesta a '{q}' es si o no?: ").strip().lower()
     db.setdefault("rules", []).append({"question": q, "answer": ans, "car": real})
     db.setdefault("autos_extra", []).append(real)
     save_db(db)
-    print("Listo: aprendí ese auto y una regla para distinguirlo. Gracias por la clase.")
+    print("¡Listo! Aprendí ese auto y su pregunta. 🚗💡")
     return db
 
-# ------------------ flujo principal ------------------
-def main():
-    print("Bienvenido al Akinator de carros — versión CLI.\nResponde con 'si', 'no' o 'no sé'.\n(Te prometo no leer xlsx en vivo.)\n")
+# ---------------- flujo principal ----------------
+def play_once():
     db = load_db()
     answers = {}
+    print("\nResponde con 'si', 'no' o 'no sé'.\n")
 
-    # Pregunto todas las preguntas (esto reproduce la estructura del excel).
     for q in QUESTIONS:
         a = ask(q)
         answers[q] = a
-        # heurística: intentar adivinar en cuanto tengamos suficiente info
         candidates = filter_cars(answers)
         if len(candidates) <= 3:
-            # intento de adivinar temprano
             g = guess(candidates)
             if g:
                 print("\n¡Lo adiviné! 🎯 ->", g)
-                return
             else:
-                # si no eligió ninguno, permitir aprender
-                db = learn(db, answers)
-                return
+                learn(db, answers)
+            return
 
-    # Si terminan las preguntas y no se eligió:
     candidates = filter_cars(answers)
     g = guess(candidates)
     if g:
         print("\n¡Lo adiviné! 🎯 ->", g)
     else:
-        db = learn(db, answers)
+        learn(db, answers)
+
+def main():
+    print("=== Akinator de Carros ===")
+    print("Versión CLI con aprendizaje automático.\n(No leo Excel, lo prometo.)")
+
+    while True:
+        play_once()
+        print("\n¿Quieres jugar otra vez o salir?")
+        print("1. Adivinar otro auto")
+        print("2. Salir")
+        choice = input("Selecciona una opción (1/2): ").strip()
+        if choice == "1":
+            continue
+        else:
+            print("\nGracias por jugar al Akinator de Carros. ¡Hasta la próxima! 👋")
+            break
 
 if __name__ == "__main__":
     main()

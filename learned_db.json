@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "question": "¿Es Hatchback con tecnologia Alemana OPEL?",
+      "answer": "si",
+      "car": "Chevy Pop USA I4 TD"
+    }
+  ],
+  "autos_extra": [
+    "Chevy Pop USA I4 TD"
+  ]
+}

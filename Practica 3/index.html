@@ -2,17 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Akinator de Autos</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🚗 Akinator de Autos</h1>
-  <p id="pregunta">Piensa en un auto...</p>
-  <div class="botones">
-    <button onclick="respuesta('sí')">Sí</button>
-    <button onclick="respuesta('no')">No</button>
+  <div class="container">
+    <h1>🤖 Akinator de Autos</h1>
+    <div id="pregunta" class="pregunta">¿Tu auto es eléctrico?</div>
+    <div class="botones">
+      <button id="si" onclick="respuesta('sí')">✅ Sí</button>
+      <button id="no" onclick="respuesta('no')">❌ No</button>
+    </div>
+    <button id="reiniciar" onclick="reiniciar()">🔄 Adivinar otro auto</button>
+    <p class="footer">Hecho por <strong>Abraham</strong> ⚙️ | Aprende con cada intento 🚀</p>
   </div>
-  <button id="reiniciar" style="display:none;" onclick="reiniciar()">Adivinar otro carro</button>
   <script src="main.js"></script>
 </body>
 </html>

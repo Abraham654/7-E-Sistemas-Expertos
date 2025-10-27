@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+:root{
+  --bg:#04060a;
+  --panel:#071224;
+  --card:#0e1722;
+  --accent:#00d6ff;
+  --accent-2:#0077a3;
+  --muted:#8fa7b7;
+  --glow:0 8px 30px rgba(0,200,255,0.06);
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top left,#061021 0%, #03040a 60%);color:#dff6ff;font-family:Orbitron,monospace;display:flex;align-items:center;justify-content:center;padding:28px}
+.screen{width:100%;max-width:1100px;border-radius:12px;padding:0;overflow:hidden;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.04));box-shadow:var(--glow);}
+.hidden{display:none}
+/* Boot */
+#boot-screen{display:flex;align-items:center;justify-content:center;height:560px;background:#000814;color:var(--accent);padding:40px}
+.boot-text pre{font-family:monospace;margin:0 0 18px 0;opacity:0.85}
+.boot-logo{display:flex;justify-content:center;margin:8px 0 12px;opacity:0.0;transform:scale(0.9);transition:all 900ms ease-out}
+.boot-ready{color:var(--muted);margin-top:8px;opacity:0.0;transition:opacity 700ms 700ms ease}
+.blink{animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}} 
+
+/* Game layout */
+.hud{padding:18px 22px;background:linear-gradient(90deg, rgba(0,0,0,0.12), rgba(0,0,0,0.02));border-bottom:1px solid rgba(255,255,255,0.02)}
+.hud .title{font-size:20px;letter-spacing:2px;color:var(--accent);font-weight:700}
+.hud .sub{color:var(--muted);font-size:12px;margin-top:4px}
+
+/* Main */
+.panel{display:flex;gap:18px;padding:20px}
+.left{flex:2}
+.right{flex:1;min-width:260px}
+.panel-card{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);margin-bottom:12px}
+.panel-card.small{padding:8px}
+.label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.narrative{min-height:120px;padding:12px;background:linear-gradient(180deg, rgba(0,0,0,0.02), transparent);border-radius:6px;color:#dff6ff;white-space:pre-wrap}
+.panel-row{display:flex;gap:10px}
+select{width:100%;padding:8px;border-radius:8px;background:#031622;border:1px solid rgba(255,255,255,0.03);color:inherit}
+
+/* Buttons */
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:10px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;cursor:pointer;transition:all 180ms ease}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021018;border:none;box-shadow:0 6px 26px rgba(0,214,255,0.06)}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.03)}
+.btn.small{padding:6px 8px;font-size:13px}
+
+/* Feedback */
+.feedback{margin-top:12px;padding:10px;border-radius:8px;background:linear-gradient(180deg, rgba(0,0,0,0.02), transparent);min-height:44px;color:var(--muted)}
+
+/* Right side */
+.preset-list{display:flex;gap:6px;flex-wrap:wrap}
+.stat{margin-top:8px;color:var(--muted)}
+
+/* Footer */
+.foot{padding:10px 18px;background:linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));font-size:13px;color:var(--muted);text-align:center}
+
+/* small responsive */
+@media(max-width:900px){.panel{flex-direction:column}.right{order:2}}
+/* animation triggers */
+.boot-show .boot-logo{opacity:1;transform:scale(1);}
+.boot-show .boot-ready{opacity:1;}

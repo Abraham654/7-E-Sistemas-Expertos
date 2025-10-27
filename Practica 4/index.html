@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flood Among Us — UNSC Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="boot-screen" class="screen">
+    <div class="boot-text">
+      <pre>[UNSC TERMINAL v2.9]
+Initializing system protocols...
+Running Flood diagnostic...
+</pre>
+      <div class="boot-logo" id="bootLogo">
+        <svg width="220" height="220" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0" stop-color="#00eaff"/>
+              <stop offset="1" stop-color="#0077b6"/>
+            </linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="100" cy="100" r="78" fill="url(#g1)" opacity="0.08"></circle>
+          <g filter="url(#glow)">
+            <path d="M100 32 L116 76 L162 76 L124 100 L140 144 L100 116 L60 144 L76 100 L38 76 L84 76 Z"
+                  fill="none" stroke="url(#g1)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>
+          </g>
+          <text x="100" y="105" font-family="Orbitron, monospace" font-size="12" fill="#bfefff" text-anchor="middle" opacity="0.9">FLOOD</text>
+          <text x="100" y="122" font-family="Orbitron, monospace" font-size="10" fill="#9ad6f8" text-anchor="middle" opacity="0.8">AMONG US</text>
+        </svg>
+      </div>
+      <div class="boot-ready">SYSTEM READY &nbsp; <span class="blink">Press any key</span></div>
+    </div>
+  </div>
+
+  <div id="game" class="screen hidden">
+    <header class="hud">
+      <div class="title">FLOOD AMONG US</div>
+      <div class="sub">UNSC — Flood Containment Diagnostic</div>
+    </header>
+
+    <main class="panel">
+      <section class="left">
+        <div class="panel-card">
+          <div class="label">Narrativa / Pistas</div>
+          <div id="narrative" class="narrative">Presiona <strong>Iniciar análisis</strong> para generar un caso.</div>
+        </div>
+
+        <div class="panel-row">
+          <div class="panel-card small">
+            <div class="label">Personaje</div>
+            <select id="selPerson"></select>
+          </div>
+          <div class="panel-card small">
+            <div class="label">Arma</div>
+            <select id="selWeapon"></select>
+          </div>
+        </div>
+        <div class="panel-card small">
+          <div class="label">Ubicación</div>
+          <select id="selLocation"></select>
+        </div>
+
+        <div class="controls">
+          <button id="btnStart" class="btn primary">Iniciar análisis</button>
+          <button id="btnAccuse" class="btn">Acusar</button>
+          <button id="btnReveal" class="btn ghost">Revelar solución</button>
+          <button id="btnReset" class="btn ghost">Reiniciar</button>
+        </div>
+
+        <div id="feedbackArea" class="feedback"></div>
+      </section>
+
+      <aside class="right">
+        <div class="panel-card">
+          <div class="label">Estado del sistema</div>
+          <div id="gameState">Esperando...</div>
+          <div class="stat"><strong>Intentos:</strong> <span id="attempts">—</span></div>
+        </div>
+
+        <div class="panel-card">
+          <div class="label">Casos predefinidos</div>
+          <div class="preset-list">
+            <button class="ghost small" data-case="0">Caso 1</button>
+            <button class="ghost small" data-case="1">Caso 2</button>
+            <button class="ghost small" data-case="2">Caso 3</button>
+            <button class="ghost small" data-case="3">Caso 4</button>
+            <button class="ghost small" data-case="4">Caso 5</button>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="label">Controles de audio</div>
+          <button id="audioToggle" class="btn small">Activar audio</button>
+        </div>
+
+        <div class="panel-card">
+          <div class="label">Notas</div>
+          <div class="muted">Versión prototipo UNSC — listo para itch.io. Reemplaza archivos de audio en /assets/sounds/ por efectos libres para mejorar inmersión.</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="foot">Prototipo desarrollado por asistente — estilo UNSC/Halo. Listo para empaquetar en itch.io</footer>
+  </div>
+
+  <audio id="audioAmbient" loop src="assets/sounds/ambient_halo.wav"></audio>
+  <audio id="audioBeep" src="assets/sounds/console_beep.wav"></audio>
+  <audio id="audioClick" src="assets/sounds/confirm_click.wav"></audio>
+  <audio id="audioError" src="assets/sounds/error_tone.wav"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

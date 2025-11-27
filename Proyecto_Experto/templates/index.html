@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>AutoExpert | Sistema Experto</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding-top: 50px; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 500px; }
+        h1 { color: #2c3e50; text-align: center; }
+        label { font-weight: bold; margin-top: 15px; display: block; }
+        select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ddd; }
+        button { background-color: #3498db; color: white; border: none; cursor: pointer; margin-top: 20px; font-size: 16px; }
+        button:hover { background-color: #2980b9; }
+        .resultado { margin-top: 20px; padding: 15px; border-radius: 5px; background-color: #e8f6f3; border-left: 5px solid #1abc9c; }
+        .error { background-color: #fdedec; border-left: 5px solid #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚗 AutoExpert v1.0</h1>
+    <p>Sistema experto para diagnóstico de arranque.</p>
+    
+    <form method="POST">
+        <label>1. ¿Qué sonido hace al girar la llave?</label>
+        <select name="sonido" required>
+            <option value="" disabled selected>Seleccione un síntoma...</option>
+            <option value="silencio">Silencio total (Ningún ruido)</option>
+            <option value="click">Sonido "Click-Click" rápido</option>
+            <option value="gira_lento">El motor gira muy lento (Wua... wua...)</option>
+            <option value="gira_rapido">El motor gira normal (Wua-wua-wua)</option>
+        </select>
+
+        <label>2. ¿Cómo se comportan las luces del tablero?</label>
+        <select name="luces" required>
+            <option value="" disabled selected>Seleccione estado de luces...</option>
+            <option value="apagadas">Totalmente apagadas</option>
+            <option value="parpadean">Parpadean o se apagan al girar llave</option>
+            <option value="tenues">Se ven débiles (luz amarilla)</option>
+            <option value="encienden">Encienden fuerte y normal</option>
+        </select>
+
+        <button type="submit">🔍 Ejecutar Inferencia</button>
+    </form>
+
+    {% if resultado %}
+    <div class="resultado {% if not resultado.exito %}error{% endif %}">
+        <h3>Diagnóstico del Sistema:</h3>
+        <p><strong>Causa Raíz:</strong> {{ resultado.diagnostico }}</p>
+        <p><strong>Recomendación:</strong> {{ resultado.recomendacion }}</p>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
